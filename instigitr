@@ -2,11 +2,20 @@
 
 PROJECT_NAME=$(basename "$PWD")
 
-function readme (){
-echo "# ${PROJECT_NAME} [![GNU GPL](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)" \
-     > README.md
+function gitignore (){
+  if [[ -z $1 ]]; then
+    touch .gitignore
+  else
+    curl -s "https://raw.githubusercontent.com/github/gitignore/master/$1.gitignore" \
+            > .gitignore
+  fi
+}
 
-cat >> README.md << 'EOF'
+function readme (){
+  echo "# ${PROJECT_NAME} [![GNU GPL](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)" \
+       > README.md
+
+  cat >> README.md << 'EOF'
 
 TODO: Write a project description
 
@@ -37,18 +46,22 @@ EOF
 }
 
 function main (){
-   while true; do
-       read -p "Do you wish to make the current dir a git repo?" yn
-       case $yn in
-           [Yy]* ) break;;
-           [Nn]* ) exit;;
-           * ) echo "Please answer yes or no.";;
-       esac
-   done
+  if [[ ! -z $1 ]]; then
+    PROJECT_TYPE=$1
+  fi
 
-   git init
-   touch .gitignore
-   readme
+  while true; do
+    read -p "Do you wish to make the current dir a git repo?" yn
+    case $yn in
+        [Yy]* ) break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+  done
+
+  git init
+  gitignore $PROJECT_TYPE
+  readme
 }
 
 main "$@"
